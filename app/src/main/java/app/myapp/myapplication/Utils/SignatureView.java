@@ -71,4 +71,7 @@ public class SignatureView extends View {
         draw(canvas);
         return bitmap;
     }
+    public boolean isEmpty() {
+        return path.isEmpty();
+    }
 }

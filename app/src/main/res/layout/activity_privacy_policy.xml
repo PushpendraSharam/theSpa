@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
+android:id="@+id/privacy_container"
     tools:context=".Screens.Privacy_policy">
 
     <LinearLayout
@@ -60,7 +60,7 @@
             android:text="I Have Opted For Therapy"
             android:textAllCaps="false"
             android:textColor="@color/black"
-            android:textSize="@dimen/tittleSize"/>
+            android:textSize="@dimen/tittleSize" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -94,6 +94,7 @@
 
 
         <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/confirmCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"

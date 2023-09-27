@@ -9,4 +9,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="app_color">#fb6340</color>
     <color name="form_tittle">#0e0e0e</color>
+    <color name="error_color">#f73131</color>
+    <color name="success_color">#59b259</color>
 </resources>
