@@ -95,4 +95,14 @@
         android:layout_marginTop="3dp"
         android:padding="10dp"
         android:text="Submit" />
+
+    <Button
+        android:id="@+id/openPdf"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:padding="10dp"
+        android:text="Open Pdf" />
+
+
 </LinearLayout>

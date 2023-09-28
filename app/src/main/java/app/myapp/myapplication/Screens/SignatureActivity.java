@@ -4,9 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -56,13 +58,9 @@ public class SignatureActivity extends AppCompatActivity {
     private static final int GALLERY_REQUEST_CODE = 122;
     ActivitySignatureBinding binding;
     Calendar calendar;
-    String date;
-    String pathImage = "";
-    int REQUEST_PERMISSION_CODE = 191;
-    private static final String[] permissions = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
+    String date_;
+    String pdfPath = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +68,7 @@ public class SignatureActivity extends AppCompatActivity {
         binding = ActivitySignatureBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         binding.loadingBar.setVisibility(View.GONE);
+        binding.openPdf.setVisibility(View.GONE);
         String fName = getIntent().getStringExtra("FIRST_NAME");
         String lName = getIntent().getStringExtra("LAST_NAME");
         String mobile = getIntent().getStringExtra("MOBILE_NUMBER");
@@ -109,10 +108,11 @@ public class SignatureActivity extends AppCompatActivity {
         Log.d("Data_is", massageName);
         Log.d("Data_is", massageTime);
         calendar = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy", Locale.US);
         binding.date.setText(sdf.format(calendar.getTime()));
+        Log.d("Date_type", sdf.format(calendar.getTime()));
 
-        date = sdf.format(calendar.getTime());
+        date_ = sdf.format(calendar.getTime());
         binding.waitTv.setText("");
         binding.date.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,11 +174,12 @@ public class SignatureActivity extends AppCompatActivity {
                     RequestBody out_time_type = RequestBody.create(MediaType.parse("multipart/form-data"), outTimeType);
                     RequestBody mode_of_payment = RequestBody.create(MediaType.parse("multipart/form-data"), modeOfPayment);
                     RequestBody gender_type = RequestBody.create(MediaType.parse("multipart/form-data"), therapyType);
-                    RequestBody user_data = RequestBody.create(MediaType.parse("multipart/form-data"), date);
+                    RequestBody user_data = RequestBody.create(MediaType.parse("multipart/form-data"), date_);
+                    Log.d("the data is ", date_);
                     RequestBody discountBody = RequestBody.create(MediaType.parse("multipart/form-data"), discount);
 
                     binding.loadingBar.setVisibility(View.VISIBLE);
-                                                    binding.waitTv.setText("Downloading PDF wait..");
+                    binding.waitTv.setText("Downloading PDF wait..");
 
                     Call<ResponseBody> bookingApi = Controller.getInstance().fillBookingForm(captured_image, signatureData, f_name, l_name, phone_number, medication_val, appointment_source, question_, massage_type, price, massage_time, rooms_type, therpay_name, intime_time, intime_time_type, out_time, out_time_type, mode_of_payment, gender_type, user_data, discountBody);
 
@@ -190,6 +191,8 @@ public class SignatureActivity extends AppCompatActivity {
                                 // Save the PDF to a temporary file
                                 binding.waitTv.setText("");
                                 savePDFToDownloads(response.body());
+                                binding.openPdf.setVisibility(View.VISIBLE);
+
 
                             } else {
                                 Toast.makeText(SignatureActivity.this, "Something Went Wrong", Toast.LENGTH_SHORT).show();
@@ -208,6 +211,28 @@ public class SignatureActivity extends AppCompatActivity {
                     });
                 }
 
+            }
+        });
+        binding.openPdf.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("PDF_Path", pdfPath);
+                Uri pdfUri = FileProvider.getUriForFile(SignatureActivity.this, "com.example.myapp.fileprovider", new File(pdfPath));
+
+                // Create an Intent to open the PDF file.
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+
+                // Set the data type to PDF and grant read permission to the receiving app.
+                intent.setDataAndType(pdfUri, "application/pdf");
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                // Attempt to open the PDF file.
+                try {
+                    startActivity(intent);
+                } catch (ActivityNotFoundException e) {
+                    // Handle the case where no PDF viewer app is installed.
+                    Toast.makeText(SignatureActivity.this, "No PDF viewer app found", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -268,7 +293,9 @@ public class SignatureActivity extends AppCompatActivity {
 
             // Create a file with a unique name, e.g., timestamped name
             String fileName = "downloaded_pdf_" + System.currentTimeMillis() + ".pdf";
+            Log.d("PDF_Path", downloadDir + fileName);
             File file = new File(downloadDir, fileName);
+            pdfPath = file.getAbsolutePath();
 
             // Write the PDF content to the file
             InputStream inputStream = null;

@@ -80,17 +80,18 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.Holder> 
                 if (checkBoxesList.get(holder.getAdapterPosition()).isChecked()) {
                     tPrice = itemModalList.get(holder.getAdapterPosition()).getPriceByTime()[i];
                     classBinding.totalPrice.setText(tPrice + " INR");
+                    classBinding.priceAfterDiscount.setText(tPrice + " INR");;
                     if (position == itemModalList.size() - 1) {
-                        obj.details(tPrice.toString(), "90 MIN");
+                        obj.details(itemModalList.get(holder.getAdapterPosition()).getProductName(), "90 MIN");
                     } else {
                         if (i == 0) {
-                            obj.details(tPrice.toString(), "60 MIN");
+                            obj.details(itemModalList.get(holder.getAdapterPosition()).getProductName(), "60 MIN");
                         }
                         if (i == 1) {
-                            obj.details(tPrice.toString(), "90 MIN");
+                            obj.details(itemModalList.get(holder.getAdapterPosition()).getProductName() ,"90 MIN");
                         }
                         if (i == 2) {
-                            obj.details(tPrice.toString(), "120 MIN");
+                            obj.details(itemModalList.get(holder.getAdapterPosition()).getProductName(), "120 MIN");
                         }
                     }
 
@@ -161,6 +162,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.Holder> 
                     }
                 }
                 classBinding.totalPrice.setText(tPrice + " INR");
+                classBinding.priceAfterDiscount.setText(tPrice + " INR");
+                classBinding.discountPrice.setText("0.0" + " INR");
+                classBinding.couponResult.setText("");
 
             }
         });

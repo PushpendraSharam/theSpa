@@ -328,48 +328,73 @@ public class Form extends AppCompatActivity {
         binding.couponBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String code = binding.couponCodeText.getText().toString();
-                if (code.isEmpty()) {
-                    binding.couponResult.setTextColor(getResources().getColor(R.color.error_color, getTheme()));
-                    binding.couponResult.setText("Coupon Code is Empty");
-                } else {
-                    binding.couponCodeText.setText("Please wait...");
-                    Call<CouponResponse> couponApi = Controller.getInstance().checkCoupon(code);
-                    couponApi.enqueue(new Callback<CouponResponse>() {
-                        @Override
-                        public void onResponse(Call<CouponResponse> call, Response<CouponResponse> response) {
-                            binding.couponCodeText.setText("");
-                            if (response.body() != null) {
-                                binding.couponCodeText.setText("");
-                                CouponResponse result = response.body();
-                                if (result.getSuccess()) {
 
-                                    discount = result.getDiscount();
-                                    binding.couponResult.setTextColor(getResources().getColor(R.color.success_color, getTheme()));
-                                    binding.couponResult.setText("Coupon Apply Successfully");
-                                } else {
-                                    binding.couponResult.setTextColor(getResources().getColor(R.color.error_color, getTheme()));
-                                    binding.couponResult.setText("Coupon code not found");
-                                    binding.couponCodeText.setText("");
-                                }
-                            } else {
+                String subTotalPrice = getPriceNumber(binding.totalPrice.getText().toString());
+                double price = Double.parseDouble(subTotalPrice);
+                if (price > 1.0) {
+                    String code = binding.couponCodeText.getText().toString();
+                    if (code.isEmpty()) {
+                        binding.couponResult.setTextColor(getResources().getColor(R.color.error_color, getTheme()));
+                        binding.couponResult.setText("Coupon Code is Empty");
+                    } else {
+                        binding.couponCodeText.setText("Please wait...");
+                        Call<CouponResponse> couponApi = Controller.getInstance().checkCoupon(code);
+                        couponApi.enqueue(new Callback<CouponResponse>() {
+                            @Override
+                            public void onResponse(Call<CouponResponse> call, Response<CouponResponse> response) {
                                 binding.couponCodeText.setText("");
-                                Toast.makeText(Form.this, "Something Went Wrong", Toast.LENGTH_SHORT).show();
+                                if (response.body() != null) {
+                                    binding.couponCodeText.setText("");
+                                    CouponResponse result = response.body();
+                                    if (result.getSuccess()) {
+
+                                        discount = result.getDiscount();
+                                        String subTotalPrice = getPriceNumber(binding.totalPrice.getText().toString());
+                                        String discount = result.getDiscount();
+                                        Double sPrice = Double.parseDouble(subTotalPrice);
+                                        Double dPrice = Double.parseDouble(discount);
+                                        Double priceResult = sPrice - dPrice;
+                                        String discountTv = String.valueOf(priceResult);
+                                        binding.discountPrice.setText(discount + " INR");
+                                        binding.priceAfterDiscount.setText(discountTv + "INR");
+                                        binding.couponResult.setTextColor(getResources().getColor(R.color.success_color, getTheme()));
+                                        binding.couponResult.setText("Coupon Apply Successfully");
+                                    } else {
+                                        discount = result.getDiscount();
+                                        String subTotalPrice = getPriceNumber(binding.totalPrice.getText().toString());
+                                        String discount = result.getDiscount();
+                                        Double sPrice = Double.parseDouble(subTotalPrice);
+                                        Double dPrice = 0.0;
+                                        Double priceResult = sPrice - dPrice;
+                                        String discountTv = String.valueOf(priceResult);
+                                        binding.discountPrice.setText(discount + " INR");
+                                        binding.priceAfterDiscount.setText(discountTv + "INR");
+                                        binding.couponResult.setTextColor(getResources().getColor(R.color.error_color, getTheme()));
+                                        binding.couponResult.setText("Coupon code not found");
+                                        binding.couponCodeText.setText("");
+                                    }
+                                } else {
+                                    binding.couponCodeText.setText("");
+                                    Toast.makeText(Form.this, "Something Went Wrong", Toast.LENGTH_SHORT).show();
+                                }
+
                             }
 
-                        }
+                            @Override
+                            public void onFailure(Call<CouponResponse> call, Throwable t) {
+                                binding.couponCodeText.setText("");
+                                binding.couponResult.setText("");
+                                Log.d("Error_coupon", t.getLocalizedMessage());
+                                Toast.makeText(Form.this, "Check your internet", Toast.LENGTH_SHORT).show();
 
-                        @Override
-                        public void onFailure(Call<CouponResponse> call, Throwable t) {
-                            binding.couponCodeText.setText("");
-                            binding.couponResult.setText("");
-                            Log.d("Error_coupon", t.getLocalizedMessage());
-                            Toast.makeText(Form.this, "Check your internet", Toast.LENGTH_SHORT).show();
+                            }
+                        });
 
-                        }
-                    });
-
+                    }
+                } else {
+                    Toast.makeText(Form.this, "Please select a Package", Toast.LENGTH_SHORT).show();
                 }
+
             }
         });
 
